@@ -1,47 +1,31 @@
-#ifndef MONTY_H
-#define MONTY_H
+#ifndef _MONTY_H_
+#define _MONTY_H_
 
 #define _GNU_SOURCE
-#include <stdarg.h>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <errno.h>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <unistd.h>
+#include <stddef.h>
 #include <string.h>
-#include <ctype.h>
 
 
-/**
- * struct instruction_s - opcode and its function
- * @opcode: the opcode
- * @f: function to handle the opcode
- *
- * Description: opcode and its function
- * for stack, queues, LIFO, FIFO
- */
-typedef struct instruction_s
-{
-	char *opcode;
-	void (*f)(stack_t **stack, unsigned int line_number);
-} instruction_t;
+
+extern int info;
 
 /**
- * struct global_s - hold line info
- * @m_code: pointer to file
- * @line: the line read
- *
- * Description: hold info about file
+ * struct cmd_s - cmd
+ * @fd: file descriptor
+ * @line: line
  */
-typedef struct global_s
+
+typedef struct cmd_s
 {
-	FILE *m_code;
+	FILE *fd;
 	char *line;
-} glob_t;
+} cmd_t;
 
-extern int data;
+extern cmd_t cmd;
+extern int value;
 
 /**
  * struct stack_s - doubly linked list representation of a stack (or queue)
@@ -59,29 +43,45 @@ typedef struct stack_s
 	struct stack_s *next;
 } stack_t;
 
-/* Error Handling */
-void err_push(FILE *mon, char *line, stack_t *stack, int count);
-void inv_inst(FILE *mon, char *line, stack_t *stack, char *argument, int count);
+/**
+ * struct instruction_s - opcode and its function
+ * @opcode: the opcode
+ * @f: function to handle the opcode
+ *
+ * Description: opcode and its function
+ * for stack, queues, LIFO, FIFO
+ */
+typedef struct instruction_s
+{
+	char *opcode;
+	void (*f)(stack_t **stack, unsigned int line_number);
+} instruction_t;
 
-/* File Operations */
-void file_handler(char *argv);
-stack_t *new_element(int element);
 
-/* Function prototypes */
-int exec_op(stack_t **stack, char *argument, char *element, int n);
-void push(stack_t **stack, unsigned int line);
-void pall(stack_t **stack, unsigned int line);
-void pop(stack_t **stack, unsigned int line);
-void sub(stack_t **stack, unsigned int line);
-void _div(stack_t **stack, unsigned int line);
-void mul(stack_t **stack, unsigned int line);
-void mod(stack_t **stack, unsigned int line);
-void pchar(stack_t **stack, unsigned int line);
-void pstr(stack_t **stack, unsigned int line);
-void add(stack_t **stack, unsigned int line);
-void free_stack(stack_t *stack);
-void pint(stack_t **stack, unsigned int line);
-void swap(stack_t **stack, unsigned int line);
-void nop(stack_t **stack, unsigned int line);
 
-#endif /*MONTY_H*/
+void execute(char *argv);
+int get_opc(stack_t **stack, char *arg, char *val, int line_number);
+void push(stack_t **stack, unsigned int line_number);
+void pall(stack_t **stack, unsigned int line_number);
+void pint(stack_t **stack, unsigned int line_number);
+void pop(stack_t **stack, unsigned int line_number);
+void nop(stack_t **stack, unsigned int line_number);
+void swap(stack_t **stack, unsigned int line_number);
+void add(stack_t **stack, unsigned int line_number);
+void sub(stack_t **stack, unsigned int line_number);
+void pchar(stack_t **stack, unsigned int line_number);
+void divide(stack_t **stack, unsigned int line_number);
+void mul(stack_t **stack, unsigned int line_number);
+void mod(stack_t **stack, unsigned int line_number);
+int check_push(char *token);
+int get_value(char *token);
+char get_token(char *op, char *token);
+void _free(stack_t *stack);
+void clean_stack(stack_t **stack);
+void usage_error(void);
+void open_error(char *file);
+void push_error(FILE *fd, char *line, stack_t *stack, int line_number);
+void instr_error(FILE *fd, char *line, stack_t *stack, char *val, int line_number);
+int _isdigit(char *c);
+stack_t *createNode(int n);
+#endif
